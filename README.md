@@ -55,6 +55,6 @@ DPI:
 
 ### 后记
 本程序适用于使用Moonlight等远控时快速切换屏幕设置  
-源代码为ScreenSetting.py，可使用build.txt中的指令打包成exe
-仅在Windows10与Windows11上测试1080p、2K分辨率，其它平台尚未测试
-欢迎阅读我的代码并提出宝贵修改意见
+源代码为ScreenSetting.py，可使用build.txt中的指令打包成exe  
+仅在Windows10与Windows11上测试1080p、2K分辨率，其它平台尚未测试  
+欢迎阅读我的代码并提出宝贵修改意见  
