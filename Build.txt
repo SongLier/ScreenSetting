@@ -1,0 +1,1 @@
+pyinstaller --onefile --noconsole --icon=icon_white.png --add-data "icon_black.png;." --add-data "icon_white.png;." --add-data "SetDpi.exe;." --add-data "QRes.exe;." ScreenSetting.py
