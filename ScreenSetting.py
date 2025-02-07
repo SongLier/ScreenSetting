@@ -52,7 +52,8 @@ class ResolutionChanger:
         self.refresh_rates = []
         self.ifkey = 0
         self.pathmod = ""
-        self.button_add=False
+        self.button_add = False
+        self.pin = False
 
         self.load_config()
         self.menu, self.button = self.build_menu()
@@ -75,7 +76,7 @@ class ResolutionChanger:
 ctrl+alt+shift+[ 1K 1920x1080 60 100
 ctrl+alt+shift+] 2K 2560x1440 60 125
 None 2k+ 2560x1440 60 100
-                   
+
 分辨率:
 2560x1440
 1920x1080
@@ -87,7 +88,10 @@ None 2k+ 2560x1440 60 100
 
 DPI:
 100
-125                   
+125
+
+固定窗口:
+False
 """)
         with open(config_path, "r", encoding="utf-8") as f:
             x = 0
@@ -107,6 +111,9 @@ DPI:
                 elif line == "DPI:":
                     x = 4
                     continue
+                elif line == "固定窗口:":
+                    x = 5
+                    continue
                 if x == 1:
                     parts = line.replace('x', ' ').split()
                     self.presets.append([parts[0], parts[1], int(
@@ -118,7 +125,9 @@ DPI:
                     self.refresh_rates.append(int(line))
                 elif x == 4:
                     self.dpi_list.append(int(line))
-        f.close()
+                elif x == 5:
+                    if line == "True":
+                        self.pin = True
 
     def build_menu(self):
         menu_items = []
@@ -168,17 +177,40 @@ DPI:
         menu_items.append(MenuItem("💤   退出", lambda: self.quit()))
         return tuple(menu_items), button_items
 
+    def changepin_true(self):
+        config_path = self.resource_path_config("Screen.config")
+        with open(config_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        lines[-1] = "True"
+        with open(config_path, "w", encoding="utf-8") as f:
+            f.writelines(lines)
+
+    def changepin_false(self):
+        config_path = self.resource_path_config("Screen.config")
+        with open(config_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        lines[-1] = "False"
+        with open(config_path, "w", encoding="utf-8") as f:
+            f.writelines(lines)
+
     def show_window(self, icon=None, item=None):
 
         def tk_window():
 
             root = tk.Tk()
-            root.title("控制台")
-            
-            if self.button_add==False:
+            if self.pathmod == "Tools":
+                root.title("控制台: Tools")
+            else:
+                root.title("控制台: Native")
+
+            if self.button_add == False:
                 self.button.append(("✔   确定", root.quit))
                 self.button.append(("💤   退出", lambda: self.quit()))
-                self.button_add=True
+                if self.pin == False:
+                    self.button.append(("🔓", self.changepin_true))
+                else:
+                    self.button.append(("🔒", self.changepin_false))
+                self.button_add = True
 
             screen_width = root.winfo_screenwidth()
             screen_height = root.winfo_screenheight()
@@ -193,7 +225,10 @@ DPI:
             window_height = 0
 
             column_count = 0
-            # 将按钮放入 grid 中，动态设置每行每列的位置
+            if self.pin == False:
+                self.button = [(text, lambda cmd=cmd: [cmd(), root.quit()])
+                               for text, cmd in self.button]
+
             for i, (text, cmd) in enumerate(self.button):
                 button = tk.Button(root, text=text, command=cmd, anchor='w')
                 if i < lengths_sum[0]:
@@ -218,8 +253,15 @@ DPI:
                                 pady=5, sticky="ew")
                 else:
                     if subject_num == 1:
-                        button.grid(column=1, row=max(lengths)-i+lengths_sum[3]+1, padx=10,
+                        button.grid(column=1, row=max(lengths)-i+lengths_sum[3]+2, padx=10,
                                     pady=5, sticky="ew")
+                    elif subject_num == 2:
+                        if i == len(self.button)-1:
+                            button.grid(column=1, row=max(lengths)-i+lengths_sum[3]+1, padx=10,
+                                        pady=5, sticky="ew")
+                        else:
+                            button.grid(
+                                column=subject_num-i+lengths_sum[3], row=max(lengths_sum), padx=10, pady=5, sticky="ew")
                     else:
                         button.grid(
                             column=subject_num-i+lengths_sum[3], row=max(lengths_sum), padx=10, pady=5, sticky="ew")
@@ -237,7 +279,7 @@ DPI:
             title_max[0] = int(title_max[0]*0.5)
             window_width = sum(title_max)*13
             if subject_num == 1:
-                window_height = max(lengths)*42+84
+                window_height = max(lengths)*42+126
             else:
                 window_height = max(lengths)*42+42
             x = screen_width - window_width - 10
