@@ -50,7 +50,7 @@ False
   `Native`表示配置读取自程序同目录下的配置文件  
 
 - 左键点击图标显示程序窗口  
-![image](https://github.com/user-attachments/assets/e2314188-b0d0-4301-8934-a5d046e91730)
+![image](https://github.com/user-attachments/assets/e2314188-b0d0-4301-8934-a5d046e91730)   
 程序窗口弹出位置为屏幕右下角，内容与右键菜单相同  
 
 ### 致谢
